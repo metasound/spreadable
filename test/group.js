@@ -56,6 +56,7 @@ export default function () {
   describe("group communication", () => {
     let nodes;
     let client;
+
     before(async () => {
       nodes = [];
       nodes.push(new Node(await tools.createNodeOptions()));
@@ -67,11 +68,13 @@ export default function () {
         )
       );
     });
+
     after(async () => {
       for (let i = 0; i < nodes.length; i++) {
         await nodes[i].deinit();
       }
     });
+
     it("should register two nodes", async () => {
       await nodes[0].init();
       await nodes[0].sync();
@@ -90,6 +93,7 @@ export default function () {
         "check the first node registration as master"
       );
     });
+
     it("should reregister node", async () => {
       nodes.push(new Node(await tools.createNodeOptions()));
       await nodes[2].init();
@@ -109,6 +113,7 @@ export default function () {
         "check the slave is removed in the master"
       );
     });
+
     it("should add the third node to the network", async () => {
       nodes[2].initialNetworkAddress = nodes[0].address;
       await tools.wait(await nodes[1].getSyncLifetime());
@@ -125,6 +130,7 @@ export default function () {
         "check the new slave"
       );
     });
+
     it("should show the right network size", async () => {
       for (let i = 0; i < 2; i++) {
         const node = new Node(
@@ -135,36 +141,43 @@ export default function () {
         nodes.push(node);
         await node.init();
       }
+      
       await tools.nodesSync(nodes, nodes.length * 3);
+
       for (let i = 0; i < nodes.length; i++) {
         assert.equal(await nodes[i].getNetworkSize(), nodes.length);
       }
     });
+
     it("should remove the node from the network", async () => {
       await nodes[0].deinit();
       nodes.shift();
+
       for (let i = 0; i < nodes.length; i++) {
         nodes[i].initialNetworkAddress = nodes[0].address;
       }
+
       await tools.wait(await nodes[0].getSyncLifetime());
       await tools.nodesSync(nodes, nodes.length * 3);
       await tools.wait(await nodes[0].getSyncLifetime());
       await tools.nodesSync(nodes, nodes.length * 3);
+
       for (let i = 0; i < nodes.length; i++) {
         assert.equal(await nodes[i].getNetworkSize(), nodes.length);
       }
     });
+
     it("should prepare node and client for requests", async () => {
       for (let i = 0; i < nodes.length; i++) {
         await nodes[i].addApproval("client", new ApprovalClient());
         await nodes[i].addApproval("captcha", new ApprovalCaptcha());
         await nodes[i].sync();
       }
-      client = new Client(
-        await tools.createClientOptions({ address: nodes[0].address })
-      );
+
+      client = new Client( await tools.createClientOptions({ address: nodes[0].address }));
       await client.init();
     });
+
     it("should not approve client requests", async () => {
       try {
         await nodes[0].requestServer(nodes[0].address, "approval-client-test");
@@ -173,6 +186,7 @@ export default function () {
         assert.isTrue(err.code == "ERR_SPREADABLE_APPROVAL_INFO_REQUIRED");
       }
     });
+
     it("should approve client requests", async () => {
       const approvalInfo = await client.getApprovalQuestion("client");
       approvalInfo.answer = approvalInfo.question;
@@ -184,6 +198,7 @@ export default function () {
       );
       assert.isTrue(result.success);
     });
+
     it("should not approve captcha requests", async () => {
       try {
         await nodes[0].requestServer(nodes[0].address, "approval-captcha-test");
@@ -192,23 +207,28 @@ export default function () {
         assert.isTrue(err.code == "ERR_SPREADABLE_APPROVAL_INFO_REQUIRED");
       }
     });
+
     it("should approve captcha requests", async () => {
       const approval = await nodes[0].getApproval("captcha");
       const approvalInfo = await client.getApprovalQuestion("captcha");
       const approvers = approvalInfo.approvers;
       const answers = {};
+
       for (let i = 0; i < nodes.length; i++) {
         const info = await nodes[i].db.getApproval(approvalInfo.key);
         answers[nodes[i].address] = info.answer;
       }
+
       let length = approval.captchaLength;
       let answer = "";
+
       for (let i = 0; i < approvers.length; i++) {
         const address = approvers[i];
         const count = Math.floor(length / (approvers.length - i));
         answer += answers[address].slice(0, count);
         length -= count;
       }
+
       approvalInfo.answer = answer;
       delete approvalInfo.question;
       const result = await nodes[0].requestServer(
