@@ -18,11 +18,11 @@ export default (options = {}, wp) => {
         "validate-ip-node": true,
         crypto: true,
         path: true,
-        stream: true,
+        stream: true
       },
     },
     options
   );
   options.include.push([path.resolve(__dirname, "src/browser/client")]);
-  return wp ? config(options, wp) : options;
+  return wp? config(options, wp) : options;
 };
