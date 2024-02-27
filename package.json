@@ -1,6 +1,6 @@
 {
   "name": "spreadable-ms",
-  "version": "0.3.40",
+  "version": "0.3.42",
   "description": "Decentralized network mechanism",
   "bin": {
     "spreadable": "./bin/index.js"

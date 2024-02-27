@@ -1,8 +1,11 @@
 import chalk from "chalk";
 import yargs from "yargs";
 import srcUtils from "../src/utils.js";
+import { hideBin } from 'yargs/helpers'
 
-const argv = yargs(process.argv).argv;
+
+
+const argv = yargs(hideBin(process.argv)).argv;
 
 /**
  * Show the node status info
