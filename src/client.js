@@ -54,6 +54,7 @@ export default (Parent) => {
       if (typeof location != 'object' || !location.hostname) {
         return '';
       }
+
       return `${location.hostname}:${location.port || (this.getPageProtocol() == 'https' ? 443 : 80)}`;
     }
 
@@ -66,6 +67,7 @@ export default (Parent) => {
       if (typeof location != 'object' || !location.protocol) {
         return '';
       }
+
       return location.protocol.split(':')[0];
     }
 
@@ -414,7 +416,8 @@ export default (Parent) => {
     createDefaultRequestOptions(options = {}) {
       const defaults = {
         method: 'POST',
-        timeout: this.options.request.clientTimeout
+        timeout: this.options.request.clientTimeout,
+        headers: {}
       };
 
       if(!this.options.request.ignoreVersion) {

@@ -1,8 +1,8 @@
-import FormData from "form-data";
 import fse from "fs-extra";
 import http from "http";
 import https from "https";
 import { capitalize, isPlainObject, merge, orderBy, pick, shuffle, uniqBy } from "lodash-es";
+import FormData from "form-data";
 import ms from "ms";
 import fetch from "node-fetch";
 import path from "path";
@@ -1199,6 +1199,7 @@ export default (Parent) => {
             form.append(key, val);
           }
         }
+
         options.body = form;
         delete options.formData;
       }
@@ -1545,13 +1546,16 @@ export default (Parent) => {
      */
     async getValueGivenNetworkSize(value) {
       const networkSize = await this.getNetworkSize();
-      
-      if (value == 'auto') {
-        value = Math.ceil(Math.sqrt(networkSize));
+
+      if(value == 'auto') {
+        value = 'r-2';
       }
 
-      else if (typeof value == 'string') {
-        value = Math.ceil(networkSize * parseFloat(value) / 100);
+      if(typeof value == 'string' && value.match('r')) {
+        value = Math.ceil(Math.pow(networkSize, 1 / value.split('-')[1]));
+      }
+      else if(typeof value == 'string') {
+        value = Math.ceil(networkSize * parseFloat(value) / 100); 
       }
 
       value > networkSize && (value = networkSize);
